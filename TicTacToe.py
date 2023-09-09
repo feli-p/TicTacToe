@@ -1,5 +1,5 @@
 # Juego de gato. Proyecto prueba.
-
+# Esto es una preuba
 
 class Tablero:
     def __init__(self):
