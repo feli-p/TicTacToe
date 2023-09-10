@@ -8,6 +8,7 @@ import random
 
 class Tablero:
     def __init__(self):
+        self.dim = 3
         self.jugadas = [0]*9
         
 
@@ -63,7 +64,6 @@ class JugadorHumano(Jugador):
                 print("\t\tNúmero inválido, escoge de nuevo.\n")
             
 
-
 class CPU(Jugador):
     def movimiento(self, tablero, turno):
         bandera = True
@@ -116,17 +116,63 @@ class Partida():
         self.tablero.imprimeTablero()
         self.ronda += 1
 
-    def revisarFin(self):
-        a = input("¿Ya acabó? Pon 1 si sí \n")
-        if a == 1:
-            self.fin = True
+    def revisarVictoria(self):
+        resultado = 0
+        if self.ronda+1 >= 2*self.tablero.dim-1:
+            # Revisar Diagonales
+            sum = 0
+            for j in range(self.tablero.dim):
+                sum += self.tablero.jugadas[(self.tablero.dim+1)*j]
+            resultado = self.checksum(sum)
 
+            if not(self.fin):
+                sum = 0
+                for j in range(self.tablero.dim):
+                    sum += self.tablero.jugadas[(self.tablero.dim-1)*(j+1)]
+                resultado = self.checksum(sum)
+
+            # Revisar renglones
+            i = 0
+            while(not(self.fin) and i < self.tablero.dim):
+                sum = 0
+                for j in range(self.tablero.dim):
+                    sum += self.tablero.jugadas[self.tablero.dim*i+j]
+                resultado = self.checksum(sum)
+                i += 1
+
+            # Revisar columnas
+            i = 0
+            while(not(self.fin) and i < self.tablero.dim):
+                sum = 0
+                for j in range(self.tablero.dim):
+                    sum += self.tablero.jugadas[i+self.tablero.dim*j]
+                resultado = self.checksum(sum)
+                i += 1
+            
+        return resultado
+
+    def checksum(self, sum):
+        resultado = 0
+        if abs(sum) == self.tablero.dim:
+            self.fin = True
+            resultado = sum
+        return resultado
+            
     def iniciaPartida(self):
         self.crearJugadores()
+        ganador = 0
         while(not(self.fin) and self.ronda < 9):
             self.jugada()
+            ganador = self.revisarVictoria()
+        if ganador == 0:
+            print("¡Ha sido un empate!")
+        else:
+            i = 1
+            if ganador == self.tablero.dim:
+                i = 0
+            print(f"Felicidades, {self.jugadores[i].nombre}. ¡Ganaste!")
+            
         print("¡Gracias por jugar!")
-
         
         
 if __name__=='__main__':
