@@ -11,7 +11,6 @@ class Tablero:
         self.dim = 3
         self.jugadas = [0]*9
         
-
     def imprimeTablero(self):
         tabla = """
         +---+---+---+
@@ -41,7 +40,7 @@ class JugadorHumano(Jugador):
     def __init__(self):
         super().__init__()
     
-    def movimiento(self, tablero, turno):
+    def movimiento(self, tablero):
         bandera = True
         while(bandera):
 
@@ -58,20 +57,26 @@ class JugadorHumano(Jugador):
                     print("\t\tIngresa un número entre 0 y 8\n")
 
             if tablero.jugadas[index] == 0:
-                tablero.jugadas[index] = turno
+                tablero.jugadas[index] = self.id
                 bandera = False
             else:
                 print("\t\tNúmero inválido, escoge de nuevo.\n")
             
 
 class CPU(Jugador):
-    def movimiento(self, tablero, turno):
+    def movimiento(self, tablero):
         bandera = True
         while(bandera):
             index = random.randint(0,8)
             if tablero.jugadas[index] == 0:
-                tablero.jugadas[index] = turno
+                tablero.jugadas[index] = self.id;
                 bandera = False
+    
+    def minmax(self):
+        pass
+
+    def heuristica(self):
+        pass
 
 
 class Partida():
@@ -108,10 +113,10 @@ class Partida():
     def jugada(self):
         print(f"Ronda {self.ronda+1}: ",end = '')
         aux = self.ronda % 2
-        turno = self.jugadores[aux].id
+        #turno = self.jugadores[aux].id
         print(f"Turno de {self.jugadores[aux].nombre}")
         
-        self.jugadores[aux].movimiento(self.tablero, turno)
+        self.jugadores[aux].movimiento(self.tablero)
         
         self.tablero.imprimeTablero()
         self.ronda += 1
