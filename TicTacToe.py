@@ -73,6 +73,7 @@ class CPU(Jugador):
                 bandera = False
     
     def minmax(self):
+        # test
         pass
 
     def heuristica(self):
