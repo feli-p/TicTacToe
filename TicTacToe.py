@@ -5,6 +5,7 @@ pero que se usaron para practicar programación con clases en este lenguaje.
 """
 
 import random
+import math
 
 class Tablero:
     def __init__(self):
@@ -40,7 +41,7 @@ class JugadorHumano(Jugador):
     def __init__(self):
         super().__init__()
     
-    def movimiento(self, tablero):
+    def movimiento(self, tablero, ronda):
         bandera = True
         while(bandera):
 
@@ -64,20 +65,125 @@ class JugadorHumano(Jugador):
             
 
 class CPU(Jugador):
-    def movimiento(self, tablero):
+    def movimiento(self, tablero, ronda):
+        mejorValor = -100000
+        index = -1
+        for i in range(9):
+            if tablero.jugadas[i] != 0:
+                continue
+            no2 = tablero.jugadas[::]
+            no2[i] = self.id
+            val = self.minimax(no2,9-ronda,True)
+            if val > mejorValor:
+                index = i
+                mejorValor = val
+        tablero.jugadas[index] = self.id;
+        """
         bandera = True
         while(bandera):
             index = random.randint(0,8)
             if tablero.jugadas[index] == 0:
                 tablero.jugadas[index] = self.id;
                 bandera = False
+        """
     
-    def minmax(self):
-        # test
-        pass
+    def minimax(self, nodo, depth, jugadorMaxi):
+        # determinar si nodo es nodo hoja
+        dim2 = len(nodo)
+        ronda = 0
+        for x in nodo:
+            if x != 0:
+                ronda += 1
 
-    def heuristica(self):
-        pass
+        hoja = False
+        heurist = self.heuristica(nodo)
+        if dim2 == ronda:
+            hoja = True
+        elif heurist != 0:
+            hoja = True
+
+        if depth == 0 or hoja:
+            return heurist
+        if jugadorMaxi:
+            mejorValor = -100000
+            for i in range(9):
+                if nodo[i] != 0:
+                    continue
+                no2 = nodo
+                no2[i] = self.id
+                val = self.minimax(no2,depth-1, False)
+                mejorValor = max(mejorValor,val)
+            return mejorValor
+        else:
+            mejorValor = 100000
+            for i in range(9):
+                if nodo[i] != 0:
+                    continue
+                no2 = nodo
+                no2[i] = -self.id
+                val = self.minimax(no2,depth-1, True)
+                mejorValor = min(mejorValor,val)
+            return mejorValor
+            
+
+    def heuristica(self, nodo):
+        aux = self.revisarVictoria(nodo)
+        if self.revisarVictoria(nodo) >= self.id:
+            return 1000
+        elif aux == 0:
+            return random.randint(-7,7)
+        else:
+            return -1000
+
+    def revisarVictoria(self, nodo):
+        resultado = 0
+        fin = False
+        dim = int(math.sqrt(len(nodo)))
+        ronda = 0
+        for x in nodo:
+            if x != 0:
+                ronda += 1
+        
+        if ronda+1 >= 2*dim-1:
+            # Revisar Diagonales
+            sum = 0
+            for j in range(dim):
+                sum += nodo[(dim+1)*j]
+            if abs(sum) == dim:
+                fin = True
+                resultado = sum
+
+            if not(fin):
+                sum = 0
+                for j in range(dim):
+                    sum += nodo[(dim-1)*(j+1)]
+                if abs(sum) == dim:
+                    fin = True
+                    resultado = sum
+
+            # Revisar renglones
+            i = 0
+            while(not(fin) and i < dim):
+                sum = 0
+                for j in range(dim):
+                    sum += nodo[dim*i+j]
+                if abs(sum) == dim:
+                    fin = True
+                    resultado = sum
+                i += 1
+
+            # Revisar columnas
+            i = 0
+            while(not(fin) and i < dim):
+                sum = 0
+                for j in range(dim):
+                    sum += nodo[i+dim*j]
+                if abs(sum) == dim:
+                    fin = True
+                    resultado = sum
+                i += 1
+            
+        return resultado
 
 
 class Partida():
@@ -114,10 +220,9 @@ class Partida():
     def jugada(self):
         print(f"Ronda {self.ronda+1}: ",end = '')
         aux = self.ronda % 2
-        #turno = self.jugadores[aux].id
         print(f"Turno de {self.jugadores[aux].nombre}")
         
-        self.jugadores[aux].movimiento(self.tablero)
+        self.jugadores[aux].movimiento(self.tablero, self.ronda)
         
         self.tablero.imprimeTablero()
         self.ronda += 1
