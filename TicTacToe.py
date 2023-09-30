@@ -73,19 +73,12 @@ class CPU(Jugador):
                 continue
             no2 = tablero.jugadas[::]
             no2[i] = self.id
-            val = self.minimax(no2,9-ronda,True)
+            val = self.minimax(no2,9-(ronda+1),False)
             if val > mejorValor:
                 index = i
                 mejorValor = val
         tablero.jugadas[index] = self.id;
-        """
-        bandera = True
-        while(bandera):
-            index = random.randint(0,8)
-            if tablero.jugadas[index] == 0:
-                tablero.jugadas[index] = self.id;
-                bandera = False
-        """
+        
     
     def minimax(self, nodo, depth, jugadorMaxi):
         # determinar si nodo es nodo hoja
@@ -99,7 +92,7 @@ class CPU(Jugador):
         heurist = self.heuristica(nodo)
         if dim2 == ronda:
             hoja = True
-        elif heurist != 0:
+        elif abs(heurist) >= 10:
             hoja = True
 
         if depth == 0 or hoja:
@@ -109,7 +102,7 @@ class CPU(Jugador):
             for i in range(9):
                 if nodo[i] != 0:
                     continue
-                no2 = nodo
+                no2 = nodo[::]
                 no2[i] = self.id
                 val = self.minimax(no2,depth-1, False)
                 mejorValor = max(mejorValor,val)
@@ -119,7 +112,7 @@ class CPU(Jugador):
             for i in range(9):
                 if nodo[i] != 0:
                     continue
-                no2 = nodo
+                no2 = nodo[::]
                 no2[i] = -self.id
                 val = self.minimax(no2,depth-1, True)
                 mejorValor = min(mejorValor,val)
@@ -128,7 +121,7 @@ class CPU(Jugador):
 
     def heuristica(self, nodo):
         aux = self.revisarVictoria(nodo)
-        if self.revisarVictoria(nodo) >= self.id:
+        if aux == 3*self.id:
             return 1000
         elif aux == 0:
             return random.randint(-7,7)
