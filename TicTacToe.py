@@ -120,6 +120,7 @@ class CPU(Jugador):
             
 
     def heuristica(self, nodo):
+        # incluir la ronda para que gane más rápido.
         aux = self.revisarVictoria(nodo)
         if aux == 3*self.id:
             return 1000
